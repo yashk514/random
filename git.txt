@@ -1,0 +1,33 @@
+git config --list --show-origin
+
+git config --global user.email "2303117@ritindia.edu"
+
+git config --global --list
+
+cmdkey /delete:git:https://github.com
+
+
+
+git rev-parse --show-toplevel
+
+git remote -v
+
+git init 
+ 
+git remote add origin https://github.com/yashk514/devprac.git
+
+git add README.md
+git commit -m "Initial commit"
+git push -u -f origin master
+
+git push -u origin master
+
+
+https://github.com/yashk514/random.git
+
+
+git branch -M main
+
+git pull origin main --rebase
+
+
