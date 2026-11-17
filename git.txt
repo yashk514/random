@@ -27,3 +27,5 @@ https://github.com/yashk514/random.git
 
 
 git branch -M main
+
+git pull origin main --rebase
