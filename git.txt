@@ -28,6 +28,10 @@ https://github.com/yashk514/random.git
 
 git branch -M main
 
+<<<<<<< HEAD
 git pull origin main --rebase
 
 
+=======
+git pull origin main --rebase
+>>>>>>> origin/main
