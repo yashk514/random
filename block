@@ -1,0 +1,259 @@
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract AgricultureTraceability {
+
+    enum Stage {
+        None,
+        Farmer,
+        CollectionCentre,
+        Distributor,
+        Retailer
+    }
+
+    struct Product {
+        uint256 productId;
+        string productName;
+        string farmerName;
+        string farmLocation;
+        string harvestDate;
+        uint256 quantity;
+        Stage currentStage;
+        bool exists;
+    }
+
+    struct Movement {
+        string participantName;
+        string location;
+        string date;
+        string remarks;
+        Stage stage;
+    }
+    // This stores the movement details every time a product changes hands.
+
+
+    uint256 public productCount;
+
+    mapping(uint256 => Product) public products;
+
+    mapping(uint256 => Movement[]) private history;
+
+    // Farmer registers a new product
+    function registerProduct(
+        string memory _productName,
+        string memory _farmerName,
+        string memory _farmLocation,
+        string memory _harvestDate,
+        uint256 _quantity
+    ) public {
+
+        productCount++;
+
+        products[productCount] = Product(
+            productCount,
+            _productName,
+            _farmerName,
+            _farmLocation,
+            _harvestDate,
+            _quantity,
+            Stage.Farmer,
+            true
+        );
+
+        history[productCount].push(
+            Movement(
+                _farmerName,
+                _farmLocation,
+                _harvestDate,
+                "Product registered by farmer",
+                Stage.Farmer
+            )
+        );
+    }
+
+    // Collection centre receives product
+    function updateCollection(
+        uint256 _productId,
+        string memory _name,
+        string memory _location,
+        string memory _date,
+        string memory _remarks
+    ) public {
+
+        require(products[_productId].exists, "Product not found");
+        require(
+            products[_productId].currentStage == Stage.Farmer,
+            "Invalid stage"
+        );
+
+        history[_productId].push(
+            Movement(
+                _name,
+                _location,
+                _date,
+                _remarks,
+                Stage.CollectionCentre
+            )
+        );
+
+        products[_productId].currentStage = Stage.CollectionCentre;
+    }
+
+    // Distributor receives product
+    function updateDistributor(
+        uint256 _productId,
+        string memory _name,
+        string memory _location,
+        string memory _date,
+        string memory _remarks
+    ) public {
+
+        require(products[_productId].exists, "Product not found");
+        require(
+            products[_productId].currentStage == Stage.CollectionCentre,
+            "Invalid stage"
+        );
+
+        history[_productId].push(
+            Movement(
+                _name,
+                _location,
+                _date,
+                _remarks,
+                Stage.Distributor
+            )
+        );
+
+        products[_productId].currentStage = Stage.Distributor;
+    }
+
+    // Retailer receives product
+    function updateRetailer(
+        uint256 _productId,
+        string memory _name,
+        string memory _location,
+        string memory _date,
+        string memory _remarks
+    ) public {
+
+        require(products[_productId].exists, "Product not found");
+        require(
+            products[_productId].currentStage == Stage.Distributor,
+            "Invalid stage"
+        );
+
+        history[_productId].push(
+            Movement(
+                _name,
+                _location,
+                _date,
+                _remarks,
+                Stage.Retailer
+            )
+        );
+
+        products[_productId].currentStage = Stage.Retailer;
+    }
+
+    // Get total movement records
+    function getHistoryCount(
+        uint256 _productId
+    ) public view returns (uint256) {
+
+        require(products[_productId].exists, "Product not found");
+
+        return history[_productId].length;
+    }
+
+    // Get a particular movement record
+    function getMovement(
+        uint256 _productId,
+        uint256 _index
+    )
+        public
+        view
+        returns (
+            string memory,
+            string memory,
+            string memory,
+            string memory,
+            Stage
+        )
+    {
+        require(products[_productId].exists, "Product not found");
+        require(
+            _index < history[_productId].length,
+            "Invalid index"
+        );
+
+        Movement memory m = history[_productId][_index];
+
+        return (
+            m.participantName,
+            m.location,
+            m.date,
+            m.remarks,
+            m.stage
+        );
+    }
+
+    // Verify product origin
+    function verifyProduct(
+        uint256 _productId
+    )
+        public
+        view
+        returns (
+            string memory,
+            string memory,
+            string memory,
+            string memory,
+            uint256,
+            Stage
+        )
+    {
+        require(products[_productId].exists, "Product not found");
+
+        Product memory p = products[_productId];
+
+        return (
+            p.productName,
+            p.farmerName,
+            p.farmLocation,
+            p.harvestDate,
+            p.quantity,
+            p.currentStage
+        );
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// IBM and Walmart implemented a blockchain-based tracking system using Hyperledger Fabric.
+/*
+hyperledger fabric is the open source permissioned blockchain 
+it is kind of similar to consortium blockchain 
+7 days
+Traditional tracking
+
+2.2 seconds
+Blockchain tracking
+
+
+
+*/
+
